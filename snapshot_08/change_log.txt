@@ -1,0 +1,39 @@
+snapshot_01:
+- standard beginning: opened a window
+
+snapshot_02:
+- defined the list of colours to show in the ComboBoxes
+- wrote the properties for the colour chips
+- outlined the building of the UI
+- wrote a method to populate the colour chips (Labels)
+- created an empty buttons properties file
+
+snapshot_03:
+-wrote a method to populate the buttons on the UI
+- sketched in the button callbacks
+
+snapshot_04:
+-connected all buttons to callbacks
+
+snapshot_05:
+- rewrote MainWindow::add_buttons() to separate the colour buttons from the file buttons.
+- the quit() function now works.
+
+snapshot_06:
+- developed PaletteChip class (derived from QLabel) to replace QLabels. The chips can now be contain
+  the properties used to create and identify them.
+- tested PaletteChip (see: tests_and_research/test_palettechip.py)
+
+snapshot_07:
+- added "id" property to PaletteChip
+- developed the ZornColourButton (see: zorn_button.py) so a PaletteChip can be identified by comparing its id to
+  the colour selection button (which is what the ZornColourButton actually is, a QComboBox for selecting
+  a colour from a list)
+- MainWindow::set_chip_colour() is now working; it finds the PaletteChip it needs to set the colour for by
+  comparing its id to the selected ZornColourButton's id
+- made the chip_ids variable local to the MainWindow::add_chips() method (it was originally a class variable)
+
+snapshot_08:
+- rewrote MainWindow::set_colour() to use the methods intended for setting/getting properties in PaletteChip
+  and ZornColourButton
+- full colour mixing chart is now working
