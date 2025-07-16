@@ -1,5 +1,22 @@
 # palette_chips.py
-from colours import *
+###### This line doesn't work any more.
+# What's happening:
+# When the new palette is set, addItems() adds all new
+# items to each ComboBox. Because all the text is changing,
+# a currentTextChanged signal is fired by all ComboBoxen.
+# And that means all chips with fill_priority of '1' are
+# refreshed. And because all these chips go to a default
+# state, they get the colour to fill themselves from
+# "rgb": default and that colour (default) isn't valid
+# because the variable 'default' is set to a colour
+# from the default palette.
+# So, that means we have to either find a way to change the
+# value of 'default', keep the chips from refreshing until
+# such time as a sane value can be assigned to 'default', or
+# something else equally as cool/cute/etc.
+from deep_seek_refined import *
+
+default = RefinedColours["Titanium\nWhite"]
 
 chip_data = \
 {

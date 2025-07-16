@@ -1,7 +1,7 @@
 # PaletteChip
 from PySide6.QtWidgets import QLabel
 
-from colours import default
+from deep_seek_refined import default
 
 class PaletteChip(QLabel):
 	def __init__(self):

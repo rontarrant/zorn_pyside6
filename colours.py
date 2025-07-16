@@ -8,6 +8,7 @@ expanded to suit.
 '''
 Colours = \
 {
+	"Titanium\nWhite": 			(243, 244, 247),
 	"Cadmium\nYellow\nLight": 	(254, 254, 0),
 	"Cadmium\nYellow\nMedium":	(255, 206, 25),	
 	"Cadmium\nOrange": 			(255, 148, 50),	
@@ -21,10 +22,7 @@ Colours = \
 	"Phthalo\nGreen":				(1, 136, 77),
 	"Yellow\nGreen": 				(85, 196, 78),
 	"Ivory\nBlack": 				(43, 52, 51),
-	"Titanium\nWhite": 			(243, 244, 247),
 }
-
-default = Colours["Titanium\nWhite"]
 
 if __name__ == "__main__":
 	for key, value in Colours.items():

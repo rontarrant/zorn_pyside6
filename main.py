@@ -5,6 +5,7 @@ from PySide6.QtWidgets import \
 	QGridLayout,
 	QWidget,
 	QComboBox,
+	QMessageBox,
 	QLabel,
 	QPushButton,
 )
@@ -16,12 +17,24 @@ from PySide6.QtCore import \
 	QSize,
 )
 
+from icecream import ic
 import mixbox
 
 from chip_data import chip_data
 from button_properties import button_data
-#import button_actions
-from colours import Colours
+
+#colours palettes we work with
+from winsor_newton_oils import WinsorNewtonOils
+from winsor_newton_acrylics import WinsorNewtonAcrylics
+from gamblin_oils import GamblinOils
+from williamsburg_oils import WilliamsburgOils
+from panpastel_pastels import Panpastel
+from tri_art_acrylics import TriArtAcrylics
+from kroma_acrylics import KromaAcrylics
+from beam_paintstones_watercolours import BeamPaintstonesWatercolours
+from liquitex_acrylics import LiquitexAcrylics
+from deep_seek_refined import RefinedColours
+
 from palette_chip import PaletteChip
 from zorn_button import ZornColourButton
 
@@ -33,12 +46,27 @@ class MainWindow(QMainWindow):
 	grid_layout = None
 	palette_chips = []
 	buttons = []
+	zorn_buttons = []
+	palettes = \
+	{
+		"Refined\nColours": RefinedColours,
+		"Liquitex\nAcrylics": LiquitexAcrylics,
+		"Beam\nPaintstones\nWatercolours": BeamPaintstonesWatercolours,
+		"Kroma Acrylics": KromaAcrylics,
+		"Tri-Art\nAcrylics": TriArtAcrylics,
+		"Panpastel\nPastel\nColours": Panpastel,
+		"Williamsburg\nOils": WilliamsburgOils,
+		"Gamblin\nOils": GamblinOils,
+		"Winsor &\nNewton\nAcrylics": WinsorNewtonAcrylics,
+		"Winsor &\nNewton\nOils": WinsorNewtonOils,
+	}
+	
 
 	def __init__(self):
 		super().__init__()
 		self.setWindowTitle(self.window_title)
 		self.resize(self.window_width, self.window_height)
-
+		self.Colours = self.palettes["Refined\nColours"]
 		self.build_ui()
 	
 
@@ -59,8 +87,9 @@ class MainWindow(QMainWindow):
 
 
 	def add_buttons(self):
+		#ic()
 		self.button_keys = list(button_data.keys())
-		colours = list(Colours.keys())
+		colours = list(self.Colours.keys())
 		reverse_colours = list(reversed(colours))
 		select_colour = "Select\nColour"
 		colours.insert(0, select_colour)
@@ -69,27 +98,35 @@ class MainWindow(QMainWindow):
 
 		for button_key in self.button_keys:
 			properties = button_data[button_key]
-			
-			# attach the callback
-			if properties["action"] == "set_colour":
+
+			if properties["type"] == "combo":
 				button = ZornColourButton()
 				button.setFixedSize(QSize(100, 100))
 				button.set_properties(properties)
 
-				# colours appear in order for Colour 1 & Colour 2
-				if properties["type"] == "hue":
+				# attach the callback
+				if properties["action"] == "set_hue":
+					# colours appear in order for Colour 1 & Colour 2
 					colour_names = colours
-				# colours appear in reverse order for Mix 1 & Mix 2
-				elif properties["type"] == "tint":
+					#ic(colour_names)
+					button.addItems(colour_names)
+					# The lambda grabs, then disgards, the boolean usually
+					# passed to the callback by connect().
+					button.currentTextChanged.connect(lambda text, pointer = button: self.set_colour(pointer, text))
+					self.zorn_buttons.append(button)
+				elif properties["action"] == "set_tint":
+					# colours appear in reverse order for Mix 1 & Mix 2
 					colour_names = reverse_colours
-				else:
-					pass
-
-				#print(colour_names)
-				button.addItems(colour_names)
-				# The lambda grabs, then disgards, the boolean usually
-				# passed to the callback by connect().
-				button.currentTextChanged.connect(lambda text, pointer = button: self.set_colour(pointer, text))
+					#ic(colour_names)
+					button.addItems(colour_names)
+					# The lambda grabs, then disgards, the boolean usually
+					# passed to the callback by connect().
+					button.currentTextChanged.connect(lambda text, pointer = button: self.set_colour(pointer, text))
+					self.zorn_buttons.append(button)
+				elif properties["action"] == "pick_palette":
+					#ic(colour_names)
+					button.addItems(self.palettes)
+					button.currentTextChanged.connect(lambda text, pointer = button: self.pick_palette(pointer, text))
 			else:
 				button = QPushButton(button_key)
 				# gets the name of the callback function from button properties
@@ -98,10 +135,35 @@ class MainWindow(QMainWindow):
 			self.grid_layout.addWidget(button, properties["row"], properties["column"])
 			self.buttons.append(button)
 
-			# set up direction access to the colour-setting combo boxen
+
+	def update_colour_list(self, button, new_colour_list):
+		# When we clear() the item list, a currentTextChanged signal fires.
+		# Because the list is empty, we get an error because the button
+		# has no text and therefore, the index string used to pick a new
+		# button label is an empty string. To avoid this, we block
+		# all signals until we've got the new list in place.
+		button.blockSignals(True)
+		button.clear()
+		button.addItems(new_colour_list)
+
+		if new_colour_list:
+			button.setCurrentIndex(0)
+		
+		button.blockSignals(False)
+
+
+	def pick_palette(self, button, palette):
+		#ic()
+		self.Colours = self.palettes[palette]
+
+		for button in self.zorn_buttons:
+			#ic(button)
+			self.update_colour_list(button, self.Colours)
+			self.set_colour(button, "Titanium\nWhite")
 
 
 	def add_chips(self):
+		#ic()
 		# Isolate the chip IDs so they can be used
 		# for stepping through the list of palette
 		# chips when creating them and, later, 
@@ -121,14 +183,16 @@ class MainWindow(QMainWindow):
 
 
 	def set_colour(self, button, text):
+		#ic()
 		priority_2 = []
 		priority_3 = []
 		priority_4 = []
+		#ic(button, text)
 
 		for chip in self.palette_chips:
 			if chip.get_id() == button.get_id():
-				chip.set_chip_colour(Colours[text])
-				chip.set_rgb(Colours[text])
+				chip.set_chip_colour(self.Colours[text])
+				chip.set_rgb(self.Colours[text])
 
 		# group chips by fill priority
 		for chip in self.palette_chips:
@@ -195,27 +259,41 @@ class MainWindow(QMainWindow):
 
 
 	def new(self):
-		print("New")
+		ic()
 
 
 	def load(self):
-		print("Load")
+		ic()
 
 
 	def reload(self):
-		print("Reload")
+		ic()
 
 
 	def save(self):
-		print("Save")
+		ic()
 
 
 	def save_as(self):
-		print("Save as...")
+		ic()
+
+	
+	def about(self):
+		title = "About Zorn Palette Tool"
+		message = "<P>Inspired by Anders Zorn's limited palette (commonly known as the Zorn Palette) \
+			this tool goes a few steps beyond. Given any four colours, the Zorn Palette Tool will \
+			mix them on a Zorn-esque grid, allowing artists to test before committing time, energy, \
+			and (perhaps most importantly) the cost of paint to exploring various painting palettes. \
+			</P><P>Note: all mixing is <I>subtractive</I> and therefore pretty darned close to \
+			real-world paint mixing.</P><P>Conceived and written by Ron Tarrant</P> \
+			<P>Special thanks to Jamie Macbeth for developing the MixBox library and making it \
+			available for Python programmers."
+
+		dialog = QMessageBox.about(self, title, message)
+		button = dialog.exec()
 
 
 	def quit(self):
-		print("Quit")
 		self.close()
 
 
