@@ -34,6 +34,7 @@ from kroma_acrylics import KromaAcrylics
 from beam_paintstones_watercolours import BeamPaintstonesWatercolours
 from liquitex_acrylics import LiquitexAcrylics
 from deep_seek_refined import RefinedColours
+from mixbox_colours import MixBoxColours
 
 from palette_chip import PaletteChip
 from zorn_button import ZornColourButton
@@ -49,6 +50,7 @@ class MainWindow(QMainWindow):
 	zorn_buttons = []
 	palettes = \
 	{
+		"MixBox Colours": MixBoxColours,
 		"Refined\nColours": RefinedColours,
 		"Liquitex\nAcrylics": LiquitexAcrylics,
 		"Beam\nPaintstones\nWatercolours": BeamPaintstonesWatercolours,
@@ -279,18 +281,29 @@ class MainWindow(QMainWindow):
 
 	
 	def about(self):
-		title = "About Zorn Palette Tool"
-		message = "<P>Inspired by Anders Zorn's limited palette (commonly known as the Zorn Palette) \
-			this tool goes a few steps beyond. Given any four colours, the Zorn Palette Tool will \
-			mix them on a Zorn-esque grid, allowing artists to test before committing time, energy, \
-			and (perhaps most importantly) the cost of paint to exploring various painting palettes. \
-			</P><P>Note: all mixing is <I>subtractive</I> and therefore pretty darned close to \
-			real-world paint mixing.</P><P>Conceived and written by Ron Tarrant</P> \
-			<P>Special thanks to Jamie Macbeth for developing the MixBox library and making it \
-			available for Python programmers."
+		title = "About the Zorn Palette Tool"
+		message = "<H3>The Zorn Palette Tool</H3> \
+			<P>Inspired by Anders Zorn's four-colour palette (commonly known as the \
+			Zorn Palette) this tool goes a bit beyond. Given any four colours, it \
+			will mix them on a Zorn-esque grid, allowing artists to test before \
+			committing time, energy, and (perhaps most importantly) the cost of paint \
+			to exploring various colour mixes.</P> \
+			<P><I><B>Note:</B> This tool simulates </I>subtractive <I> colour mixing and it's \
+			close enough to give a reasonable idea of results for real-world paint mixing.</I></P> \
+			<P><B>Disclaimer:</B> This application is for amusement only. There are too \
+			many factors involved for me (or anyone else) to guarantee the results.</P> \
+			<P>To name a few:</P> \
+			<UL> \
+			<LI>monitor quality,</LI> \
+			<LI>ambiant lighting,</LI> \
+			<LI>viewing angle,</LI> \
+			<LI>mixing ratio,</LI> \
+			</UL> \
+			<P>Conceived and written by Ron Tarrant</P> \
+			<P>Special thanks to Ondřej Jamriška and Šárka Sochorová of Secret Weapons for \
+			developing the MixBox library	and making it available for Python programmers."
 
 		dialog = QMessageBox.about(self, title, message)
-		button = dialog.exec()
 
 
 	def quit(self):
